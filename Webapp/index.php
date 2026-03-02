@@ -41,15 +41,23 @@ $error = '';
 $success = '';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $email = $_POST['email'] ?? '';
-    $password = $_POST['password'] ?? '';
+    $isGuest = ($_POST['guest'] ?? '') === '1';
 
-    if ($email === '' || $password === '') {
-        $error = 'Vul e-mail en wachtwoord in.';
-    } elseif (login_user($email, $password)) {
-        $success = 'Je bent ingelogd.';
+    if ($isGuest) {
+        $_SESSION['user_id'] = 0;
+        $_SESSION['user_email'] = 'gast';
+        $success = 'Je bent ingelogd als gast.';
     } else {
-        $error = 'Onjuiste inloggegevens.';
+        $email = $_POST['email'] ?? '';
+        $password = $_POST['password'] ?? '';
+
+        if ($email === '' || $password === '') {
+            $error = 'Vul e-mail en wachtwoord in.';
+        } elseif (login_user($email, $password)) {
+            $success = 'Je bent ingelogd.';
+        } else {
+            $error = 'Onjuiste inloggegevens.';
+        }
     }
 }
 
@@ -87,20 +95,13 @@ $loggedIn = isset($_SESSION['user_id']);
                     <label>Wachtwoord
                         <input type="password" name="password" required>
                     </label>
-                    <button type="button" class="guest-text" id="guest-login">Login als gast</button>
+                    <button type="submit" class="guest-text" name="guest" value="1" formnovalidate>Login als gast</button>
                     <button type="submit">Inloggen</button>
                 </form>
+                <p class="helper">Nog geen account? <a href="register.php">Meld je aan</a>.</p>
             <?php endif; ?>
             </section>
         </main>
     </div>
-    <script>
-        const guestButton = document.getElementById('guest-login');
-        if (guestButton) {
-            guestButton.addEventListener('click', () => {
-                console.log('logged in');
-            });
-        }
-    </script>
 </body>
 </html>

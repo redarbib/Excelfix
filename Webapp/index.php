@@ -1,41 +1,18 @@
 <?php
-session_start();
+require_once __DIR__ . '/src/Database.php';
+require_once __DIR__ . '/src/SessionManager.php';
+require_once __DIR__ . '/src/AuthService.php';
 
 const DB_HOST = 'localhost';
 const DB_NAME = 'excel_fix';
 const DB_USER = 'root';
 const DB_PASS = '';
 
-function get_db(): PDO
-{
-    $dsn = 'mysql:host=' . DB_HOST . ';dbname=' . DB_NAME . ';charset=utf8mb4';
-    return new PDO($dsn, DB_USER, DB_PASS, [
-        PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
-        PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
-    ]);
-}
+$session = new SessionManager();
+$session->start();
 
-function normalize_email(string $email): string
-{
-    return strtolower(trim($email));
-}
-
-function login_user(string $email, string $password): bool
-{
-    $db = get_db();
-    $email = normalize_email($email);
-    $stmt = $db->prepare('SELECT id, email, password_hash FROM users WHERE LOWER(email) = :email LIMIT 1');
-    $stmt->execute([':email' => $email]);
-    $user = $stmt->fetch();
-
-    if ($user && password_verify($password, $user['password_hash'])) {
-        $_SESSION['user_id'] = (int) $user['id'];
-        $_SESSION['user_email'] = $user['email'];
-        return true;
-    }
-
-    return false;
-}
+$db = new Database(DB_HOST, DB_NAME, DB_USER, DB_PASS);
+$auth = new AuthService($db, $session);
 
 $error = '';
 $success = '';
@@ -44,8 +21,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $isGuest = ($_POST['guest'] ?? '') === '1';
 
     if ($isGuest) {
-        $_SESSION['user_id'] = 0;
-        $_SESSION['user_email'] = 'gast';
+        $session->loginAsGuest();
         $success = 'Je bent ingelogd als gast.';
     } else {
         $email = $_POST['email'] ?? '';
@@ -53,7 +29,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         if ($email === '' || $password === '') {
             $error = 'Vul e-mail en wachtwoord in.';
-        } elseif (login_user($email, $password)) {
+        } elseif ($auth->loginUser($email, $password)) {
             $success = 'Je bent ingelogd.';
         } else {
             $error = 'Onjuiste inloggegevens.';
@@ -61,7 +37,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 }
 
-$loggedIn = isset($_SESSION['user_id']);
+$loggedIn = $session->isLoggedIn();
+$userEmail = $session->getEmail();
 ?>
 <!DOCTYPE html>
 <html lang="nl">
@@ -72,22 +49,58 @@ $loggedIn = isset($_SESSION['user_id']);
     <link rel="stylesheet" href="Basics/css/style.css">
 </head>
 <body>
-    <div class="layout">
-        <aside class="sidebar" aria-hidden="true"></aside>
+    <?php if ($loggedIn): ?>
+        <div class="layout">
+            <aside class="sidebar">
+                <div class="brand">ExcelFix</div>
+                <nav class="nav">
+                    <a class="nav-link active" href="#">Home</a>
+                    <a class="nav-link" href="#">Uploads</a>
+                    <a class="nav-link" href="#">Templates</a>
+                    <a class="nav-link" href="#">Support</a>
+                </nav>
+            </aside>
+            <main class="main">
+                <header class="page-header">
+                    <h1>Home</h1>
+                    <p class="helper">Fix, clean, and export your spreadsheets faster.</p>
+                </header>
+
+                <?php if ($error !== ''): ?>
+                    <div class="alert error"><?php echo htmlspecialchars($error, ENT_QUOTES, 'UTF-8'); ?></div>
+                <?php elseif ($success !== ''): ?>
+                    <div class="alert success"><?php echo htmlspecialchars($success, ENT_QUOTES, 'UTF-8'); ?></div>
+                <?php endif; ?>
+
+                <section class="home-grid">
+                    <div class="upload-card">
+                        <h2>Upload</h2>
+                        <div class="upload-box">
+                            <p>Drag and drop your file here</p>
+                            <span class="helper">XLSX or CSV, max 25MB</span>
+                            <button class="button" type="button" disabled>Upload</button>
+                        </div>
+                    </div>
+
+                    <section class="card">
+                        <h2>Account</h2>
+                        <p>Ingelogd als <?php echo htmlspecialchars($userEmail, ENT_QUOTES, 'UTF-8'); ?>.</p>
+                        <a class="button" href="logout.php">Logout</a>
+                    </section>
+                </section>
+            </main>
+        </div>
+    <?php else: ?>
         <main class="container">
             <section class="card">
                 <h1>Login</h1>
 
-            <?php if ($error !== ''): ?>
-                <div class="alert error"><?php echo htmlspecialchars($error, ENT_QUOTES, 'UTF-8'); ?></div>
-            <?php elseif ($success !== ''): ?>
-                <div class="alert success"><?php echo htmlspecialchars($success, ENT_QUOTES, 'UTF-8'); ?></div>
-            <?php endif; ?>
+                <?php if ($error !== ''): ?>
+                    <div class="alert error"><?php echo htmlspecialchars($error, ENT_QUOTES, 'UTF-8'); ?></div>
+                <?php elseif ($success !== ''): ?>
+                    <div class="alert success"><?php echo htmlspecialchars($success, ENT_QUOTES, 'UTF-8'); ?></div>
+                <?php endif; ?>
 
-            <?php if ($loggedIn): ?>
-                <p>Ingelogd als <?php echo htmlspecialchars($_SESSION['user_email'] ?? '', ENT_QUOTES, 'UTF-8'); ?>.</p>
-                <a class="button" href="logout.php">Logout</a>
-            <?php else: ?>
                 <form method="post" class="form">
                     <label>E-mail
                         <input type="email" name="email" required>
@@ -99,9 +112,8 @@ $loggedIn = isset($_SESSION['user_id']);
                     <button type="submit">Inloggen</button>
                 </form>
                 <p class="helper">Nog geen account? <a href="register.php">Meld je aan</a>.</p>
-            <?php endif; ?>
             </section>
         </main>
-    </div>
+    <?php endif; ?>
 </body>
 </html>

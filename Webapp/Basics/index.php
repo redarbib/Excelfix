@@ -1,7 +1,7 @@
 <?php
-require_once __DIR__ . '/src/Database.php';
-require_once __DIR__ . '/src/SessionManager.php';
-require_once __DIR__ . '/src/AuthService.php';
+require_once __DIR__ . '/Database.php';
+require_once __DIR__ . '/SessionManager.php';
+require_once __DIR__ . '/AuthService.php';
 
 const DB_HOST = 'localhost';
 const DB_NAME = 'excel_fix';
@@ -46,7 +46,7 @@ $userEmail = $session->getEmail();
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login</title>
-    <link rel="stylesheet" href="Basics/css/style.css">
+    <link rel="stylesheet" href="../css/style.css">
 </head>
 <body>
     <?php if ($loggedIn): ?>

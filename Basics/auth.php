@@ -1,11 +1,11 @@
 <?php
 
-class AuthService
+class auth
 {
     private Database $db;
     private session $session;
 
-    public function __construct(Database $db, SessionManager $session)
+    public function __construct(Database $db, session $session)
     {
         $this->db = $db;
         $this->session = $session;

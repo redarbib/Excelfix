@@ -8,11 +8,11 @@ const DB_NAME = 'excel_fix';
 const DB_USER = 'root';
 const DB_PASS = '';
 
-$session = new SessionManager();
+$session = new session();
 $session->start();
 
 $db = new Database(DB_HOST, DB_NAME, DB_USER, DB_PASS);
-$auth = new AuthService($db, $session);
+$auth = new auth($db, $session);
 
 $error = '';
 $success = '';
@@ -48,7 +48,7 @@ $userEmail = $session->getEmail();
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login</title>
-    <link rel="stylesheet" href="../css/style.css">
+    <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
     <?php if ($loggedIn): ?>

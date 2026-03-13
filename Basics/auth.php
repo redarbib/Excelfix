@@ -3,7 +3,7 @@
 class AuthService
 {
     private Database $db;
-    private SessionManager $session;
+    private session $session;
 
     public function __construct(Database $db, SessionManager $session)
     {

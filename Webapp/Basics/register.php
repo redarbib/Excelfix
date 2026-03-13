@@ -75,10 +75,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <link rel="stylesheet" href="../css/style.css">
 </head>
 <body>
-    <div class="layout">
-        <main class="container">
-            <section class="card">
-                <h1>Registreren</h1>
+    <main class="container">
+        <section class="card">
+            <h1>Registreren</h1>
 
             <?php if ($error !== ''): ?>
                 <div class="alert error"><?php echo htmlspecialchars($error, ENT_QUOTES, 'UTF-8'); ?></div>
@@ -100,9 +99,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     <button type="submit">Account maken</button>
                 </form>
             <?php endif; ?>
-                <p class="helper">Heb je al een account? <a href="index.php">Inloggen</a>.</p>
-            </section>
-        </main>
-    </div>
+            <p class="helper">Heb je al een account? <a href="index.php">Inloggen</a>.</p>
+        </section>
+    </main>
 </body>
 </html>

@@ -16,6 +16,8 @@ $auth = new AuthService($db, $session);
 
 $error = '';
 $success = '';
+$email = '';
+$password = '';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $isGuest = ($_POST['guest'] ?? '') === '1';

@@ -67,16 +67,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 }
 ?>
 <!DOCTYPE html>
-<html lang="nl">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Registreren</title>
-    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="../css/style.css">
 </head>
 <body>
     <div class="layout">
-        <aside class="sidebar" aria-hidden="true"></aside>
         <main class="container">
             <section class="card">
                 <h1>Registreren</h1>
@@ -90,7 +89,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <?php if ($success === ''): ?>
                 <form method="post" class="form">
                     <label>E-mail
-                        <input type="email" name="email" value="<?php echo htmlspecialchars($email ?? '', ENT_QUOTES, 'UTF-8'); ?>" required>
+                        <input type="email" name="email" value="<?php echo htmlspecialchars($email, ENT_QUOTES, 'UTF-8'); ?>" required>
                     </label>
                     <label>Wachtwoord
                         <input type="password" name="password" value="<?php echo htmlspecialchars($password, ENT_QUOTES, 'UTF-8'); ?>" required>
@@ -101,7 +100,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     <button type="submit">Account maken</button>
                 </form>
             <?php endif; ?>
-
                 <p class="helper">Heb je al een account? <a href="index.php">Inloggen</a>.</p>
             </section>
         </main>

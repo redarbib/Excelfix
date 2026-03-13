@@ -28,6 +28,6 @@ class SessionManager
 
     public function getEmail(): string
     {
-        return (string) ($_SESSION['user_email'] ?? '');
+        return (string) ($_SESSION['user_email'] ?? "Gast");
     }
 }
